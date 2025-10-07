@@ -1,0 +1,46 @@
+name: ciofs3-skill-assessment
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  # Required for full project functionality (dont remove)
+  - pytest
+  - cartopy=0.23.0  # with 0.25.0 overview_moorings compilation stopped on 2nd overview plot
+  - cmocean
+  - datetimerange=2.2.1
+  - fastparquet
+  - ffmpeg
+  - geoviews
+  - holoviews=1.19.1  # otherwise the drifter overview plots were impossibly slow with newer version
+  - h5netcdf
+  - hvplot
+  - intake-erddap
+  - jupytext
+  - kerchunk
+  - matplotlib-base
+  - oceans
+  # - ocean-model-skill-assessor install locally
+  - pandas
+  - pip
+  - pooch
+  - pyogrio
+  # - report-utils - install this locally
+  - seaborn
+  - xcmocean
+  - xesmf
+  - xgcm
+  # - xroms
+  - pip:
+    - dateparser
+    - extract_model>=1.4.4
+    - xroms >=0.6.2
+    - myst-nb
+    # - myst-nb==1.1.1
+    - intake-coops
+    # - noaa_coops>=0.3.2
+    - git+https://github.com/kthyng/noaa_coops.git@toml
+    # - git+https://github.com/axiom-data-science/cook-inlet-catalogs.git  # install locally until ready online
+    # - git+https://github.com/moflaher/ttide_py.git
+    # https://github.com/moflaher/ttide_py/issues/39, https://github.com/moflaher/ttide_py/pull/38
+    - git+https://github.com/willirath/ttide_py.git@patch-1
+
