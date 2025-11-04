@@ -50,10 +50,10 @@ def read_files(model_name, which, source_name):
             path = f"hfradar_{source_name}_north_2006-11-12_2007-01-01_remove-under-50-percent-data_units-to-meters"
             path_model_north = pathlib.Path(base) / f"{path}_model.nc"
         elif "2003" in source_name:
-            path = f"hfradar_{source_name}_east_2003-01-01_2003-06-09_remove-under-50-percent-data_units-to-meters"
+            path = f"hfradar_{source_name}_east_2002-12-08_2003-06-15_remove-under-50-percent-data_units-to-meters"
             path_data = pathlib.Path(base) / f"{path}_data.nc"
             path_model_east = pathlib.Path(base) / f"{path}_model.nc"
-            path = f"hfradar_{source_name}_north_2003-01-01_2003-06-09_remove-under-50-percent-data_units-to-meters"
+            path = f"hfradar_{source_name}_north_2002-12-08_2003-06-15_remove-under-50-percent-data_units-to-meters"
             path_model_north = pathlib.Path(base) / f"{path}_model.nc"
         elif "2009" in source_name:
             path = f"hfradar_{source_name}_east_2009-04-19_2009-06-07_remove-under-50-percent-data_units-to-meters"
@@ -74,10 +74,10 @@ def read_files(model_name, which, source_name):
             path = f"hfradar_{source_name}_north_2006-11-12_2007-01-01_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
             path_model_north = pathlib.Path(base) / f"{path}_model.nc"
         elif "2003" in source_name:
-            path = f"hfradar_{source_name}_east_2003-01-01_2003-06-09_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
+            path = f"hfradar_{source_name}_east_2002-12-08_2003-06-15_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
             path_data = pathlib.Path(base) / f"{path}_data.nc"
             path_model_east = pathlib.Path(base) / f"{path}_model.nc"
-            path = f"hfradar_{source_name}_north_2003-01-01_2003-06-09_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
+            path = f"hfradar_{source_name}_north_2002-12-08_2003-06-15_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
             path_model_north = pathlib.Path(base) / f"{path}_model.nc"
         elif "2009" in source_name:
             path = f"hfradar_{source_name}_east_2009-04-19_2009-06-07_remove-under-50-percent-data_units-to-meters_subtidal_resample-6H"
@@ -95,6 +95,13 @@ def read_files(model_name, which, source_name):
     model_east = model_east.assign_coords({"lon": model_east["lon"], "lat": model_east["lat"]})
     model_north = xr.open_dataset(path_model_north)
     model_north = model_north.assign_coords({"lon": model_north["lon"], "lat": model_north["lat"]})
+    
+    # import pdb; pdb.set_trace()
+    
+    # catch when model has all giant fill values
+    model_east[model_east.cf["east"].name] = model_east.cf["east"].where(model_east.cf["east"] < 100)
+    model_north[model_north.cf["north"].name] = model_north.cf["north"].where(model_north.cf["north"] < 100)
+
     return obs, model_east, model_north
 
 def calculate_ss(obs, model, key):
@@ -114,13 +121,13 @@ def calculate_ss(obs, model, key):
 source_names = [
 #     'lower-ci_system-B_2006',
 #  'upper-ci_system-A_2003',
-    'lower-ci_system-B_2006-2007',
-#  'upper-ci_system-A_2002-2003',
+    # 'lower-ci_system-B_2006-2007',
+ 'upper-ci_system-A_2002-2003',
 #  'upper-ci_system-A_2009',
 ]
 
 extents = [
-    (-153.05, -151.7, 59.1, 60.0), 
+    # (-153.05, -151.7, 59.1, 60.0), 
     (-152.15, -151.2, 60.2, 60.8), 
     ]
 

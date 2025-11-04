@@ -13,13 +13,10 @@ kernelspec:
 
 # Overview CTD Profiles
 
-UPDATE
+The performance of the CIOFSv3 model for CTD profiles data is summarized on this page. Shown below are a map of dataset locations, Taylor diagrams summarizing performance across the three CIOFS historical models, and overview maps showing markers colored to indicate the skill score of the model-data comparisons for each dataset.
 
-CTD profiles are compared between data and each model and summarized on plots below by variable using the skill score. A higher skill score is better with 1 giving perfect skill.
-
-Results show that CIOFS hindcast and CIOFS fresh have similar skill for temperature, but CIOFS fresh has better skill than CIOFS hindcast for salinity.
-
-[122MB zipfile of plots and stats files](https://files.axds.co/ciofs_fresh/zip/ctd_profiles.zip)
+* [60MB zipfile of plots and stats files](https://files.axds.co/ciofs3/zip/ctd_profiles.zip)
+* [55MB CTD profile model-data comparison as PDF](https://files.axds.co/ciofs3/pdfs/ctd_profiles.pdf)
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -48,8 +45,8 @@ import subprocess
 
 ins_type = "ctd_profiles"  # instrument name
 models = ["ciofs3"]
-years = [1999, 2000, 2001, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 
-         2017, 2018, 2019, 2020]
+years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+         2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 # can only do these when running in docker with playwright available
 # once they exist, can run outside of docker because don't need to
@@ -91,10 +88,19 @@ def station_intersect_with_years(minTime, maxTime):
         model_time_range = DateTimeRange(start, end)
         flag += data_time_range.is_intersection(model_time_range)
     return flag
+
+lonmin, lonmax, latmin, latmax = -156.485291, -148.925125, 56.7004919, 61.5247774
+
+def stations_inside_domain(lon, lat):
+    # compare if the drifter is even in the domain box
+    if lonmin <= lon <= lonmax and latmin <= lat <= latmax:
+        return True
+    else:
+        return False
 ```
 
 ```{code-cell} ipython3
-:tags: [remove-input]
+:tags: [remove-input, remove-output]
 
 slugs = ['ctd_profiles_2005_noaa',
  'ctd_profiles_ecofoci',
@@ -123,8 +129,9 @@ for slug in slugs:
     # print(slug)
     cat = intake.open_catalog(cic.utils.cat_path(slug))
     source_names_present[slug] = []
-    source_names = [sn for sn in list(cat) if sn not in ["AKCI08-026","AKCI08-076"]]
-    for source_name in list(cat):
+    # these stations are generally in the domain but probably right at the coast so a good grid cell isn't being found to match
+    source_names = [sn for sn in list(cat) if sn not in ["AKCI08-026","AKCI08-076", "10", "63", "64", "67", "68"]]
+    for source_name in source_names:
         lon, lat = cat[source_name].metadata["minLongitude"], cat[source_name].metadata["minLatitude"]
         start_time = cat[source_name].metadata["minTime"]
         minTime, maxTime = pd.Timestamp(cat[source_name].metadata["minTime"].replace("Z","")), pd.Timestamp(cat[source_name].metadata["maxTime"].replace("Z",""))
@@ -132,6 +139,9 @@ for slug in slugs:
             # print(f"Skipping {source_name} because min time {minTime} and max time {maxTime} are not in {years}")
             continue
         # print(f"Adding {source_name} because min time {minTime} and max time {maxTime} are in {years}")
+        if not stations_inside_domain(lon, lat):
+            # print(f"Skipping {source_name} because lon {lon} and lat {lat} are outside domain")
+            continue
         source_names_present[slug].append(source_name)
         rows.append([source_name, lon, lat, pd.Timestamp(start_time), slug, slug_names[slug]])
 df = pd.DataFrame(rows, columns=["station","lon","lat","date_time", "slug", "slug_names"])
@@ -156,11 +166,7 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
-```{glue:figure} fig_map
-:name: "fig-overview-ctd-profiles-map"
 
-All CTD profiles, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
 
 +++
 
@@ -168,7 +174,7 @@ All CTD profiles, by project. Click on a legend entry to toggle the transparency
 ```{figure} build_figures/ctd_profiles_map.png
 :name: "fig-overview-ctd-profiles-map"
 
-All CTD profiles, by project. (PNG screenshot, available for PDF and for saving image.)
+All CTD profiles, by project.
 ```
 ````
 
@@ -176,18 +182,16 @@ All CTD profiles, by project. (PNG screenshot, available for PDF and for saving 
 
 ## Taylor Diagrams
 
-UPDATE
+The present Taylor diagrams summarize the skill of the three historical CIOFS models in capturing the CTD profile datasets. Only datasets from years for which all three CIOFS historical models are available are used, which are 2003-2006 and 2012-2014 (the years modeled for CIOFS fresh).
 
-Taylor diagrams summarize the skill of the two models in capturing the CTD profile datasets. The data has been grouped by region ({numref}`Fig. {number}<fig-ctd_profiles_by_region>`) and season ({numref}`Fig. {number}<fig-ctd_profiles_by_season>`). By region for temperature, CIOFS Fresh has higher skill than CIOFS Hindcast, either by a little or a lot, except CIOFS Hindcast performs much better for Upper Cook Inlet. By region for salinity, CIOFS Fresh has much too high of variability in Kachemak Bay and Upper Cook Inlet while CIOFS Hindcast has much too low variability. For other regions, CIOFS Fresh performs clearly better than CIOFS Hindcast except for outside of Cook Inlet, for which CIOFS Fresh actually performs similarly to CIOFS Hindcast and neither are good. By season, data is only available in spring and summer. CIOFS Fresh is better for temperature in spring but similar for summer. For salinity, CIOFS Fresh again has much too high variability and CIOFS Hindcast much too low.
-
-Skill scores are shown in the next plots for each dataset.
+The data has been grouped by region ({numref}`Fig. {number}<fig-ctd_profiles_by_region>`) and season ({numref}`Fig. {number}<fig-ctd_profiles_by_season>`). For temperature, the models perform similarly. By region, the lowest performance is in upper Cook Inlet ($r\sim0.2$ and low variance, though CIOFS Hindcast performs anomalously high). Performance is reasonable across the other regions ($r$ between 0.7 and 0.9), but variance is best in Kachemak Bay and outside Cook Inlet. Correlations by season range from 0.4 to 0.9 but variance is much too low in the fall. CIOFS Hindcast performs poorly for salinity comparisons, but does best in the winter and outside Cook Inlet. CIOFS Fresh and CIOFSv3 have too much variance in Kachemak Bay and upper and central Cook Inlet but otherwise have decent correlations ($r>0.8$). CIOFS Fresh and CIOFSv3 perform best in the summer ($r\sim0.95$ and good variance) but are also decent in other seasons (especially CIOFSv3).
 
 
 ```{figure} ../figures/taylor_diagrams/ctd_profiles_by_region.png
 ---
 name: fig-ctd_profiles_by_region
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for temperature (left) and salinity (right), grouped by region of Cook Inlet, for CTD profiles datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for temperature (left) and salinity (right), grouped by region of Cook Inlet, for CTD profiles datasets.
 ```
 
 
@@ -195,7 +199,7 @@ Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (tria
 ---
 name: fig-ctd_profiles_by_season
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for temperature (left) and salinity (right), grouped by season, for CTD profiles datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for temperature (left) and salinity (right), grouped by season, for CTD profiles datasets.
 ```
 
 ```{code-cell} ipython3
@@ -206,7 +210,11 @@ def return_paths(slug, model_name, key_variable, stations_this_slug):
     stats_fnames = sorted(paths.OUT_DIR / f"{slug}_{station.replace('.', '_')}_{key_variable}.yaml" for station in stations_this_slug)
     # stats_fnames = sorted(paths.OUT_DIR.glob(f"*{key_variable}.yaml"))
     # station_intersect_with_years
-    stats_fnames = [name for name in stats_fnames if "AKCI08-026" not in str(name) and "AKCI08-076" not in str(name)]
+    # stats_fnames = [name for name in stats_fnames if "AKCI08-026" not in str(name) and "AKCI08-076" not in str(name)]
+    # stats_fnames = [name for name in stats_fnames if ("10" not in str(name) and slug == "ctd_profiles_emap_2002")]
+    # testnames = [name for name in stats_fnames if "10" in str(name) and slug == "ctd_profiles_emap_2002"]
+    # if len(testnames) > 0:
+    #     import pdb; pdb.set_trace()
     return stats_fnames
 
 def load_ss(index, stats_fnames, key_variable):
@@ -326,7 +334,9 @@ def make_figures(model, key_variables, vardescs):
     return variable_plot, figname, abs_path
 ```
 
-## Results
+## Skill Scores
+
+Model performance is mixed for both temperature and salinity for CTD profiles with both high and low performance present.
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -335,18 +345,12 @@ ctd, figname, abs_path = make_figures(models[0], key_variables, vardescs)
 glue("ctd", ctd, display=False)
 ```
 
-````{div} full-width                
-```{glue:figure} ctd
-:name: "fig-overview-ctd-profiles"
 
-Skill scores for CIOFSv3 with CTD profiles for sea temperature (left) and salinity (right), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/ctd_profiles.png
 :name: "fig-overview-ctd-profiles"
 
-Skill scores for CIOFSv3 with CTD profiles for sea temperature (left) and salinity (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with CTD profiles for sea temperature (left) and salinity (right), by project.
 ```

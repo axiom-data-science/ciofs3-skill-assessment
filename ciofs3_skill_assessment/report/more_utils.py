@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import cf_pandas as cfp
 
-models = ["ciofs_hindcast", "ciofs_fresh"]
+models = ["ciofs3"]
+# models = ["ciofs_hindcast", "ciofs_fresh"]
 
 def COMP_PAGE_DIR(slug):
     path = Path(slug)

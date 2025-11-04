@@ -109,14 +109,18 @@ def select_variables(ds, var_list):
     return ds[var_list]#.chunk({"s_rho": 30})
 
 
+
+# model_slug = "v4j"
+# cat_model = intake.open_catalog(f"models_{model_slug}.yaml")
+
 cat_model = intake.open_catalog("models.yaml")
 
 
 slugs = [
-    # "adcp_moored_noaa_coi_other",
-    # "adcp_moored_noaa_coi_2005",
+    "adcp_moored_noaa_coi_other",
+    "adcp_moored_noaa_coi_2005",
  'adcp_moored_noaa_kod_1',
-#  'adcp_moored_noaa_kod_2',
+ 'adcp_moored_noaa_kod_2',
  ]
 
 # run for both models
@@ -135,9 +139,9 @@ key_variables = [[
                 
                 
                 # These are the ones to use:
-                {"data": "east", "function": select_variables, "inputs": dict(var_list=["east", "north", "speed"])},
+                # {"data": "east", "function": select_variables, "inputs": dict(var_list=["east", "north", "speed"])},
                 # {"data": "north", "function": select_variables, "inputs": dict(var_list=["east", "north", "speed"])},
-                # {"data": "speed", "function": select_variables, "inputs": dict(var_list=["east", "north", "speed"])},
+                {"data": "speed", "function": select_variables, "inputs": dict(var_list=["east", "north", "speed"])},
 
 
                   ]]

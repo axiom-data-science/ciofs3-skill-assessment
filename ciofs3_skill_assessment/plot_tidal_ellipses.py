@@ -232,28 +232,29 @@ for model_name in model_names:
 
     cat = intake.open_catalog(cic.utils.cat_path(slug))
     source_names = [
-    #     'lower-ci_system-B_2006_tidecons',
+        # 'lower-ci_system-B_2006_tidecons',
         # 'lower-ci_system-B_2006-2007_tidecons',
+ 'upper-ci_system-A_2002-2003_tidecons',
     # 'upper-ci_system-A_2003_tidecons',
     'upper-ci_system-A_2009_tidecons',
     # 'lower-ci_system-B_2006-2007',
 #  'upper-ci_system-A_2002-2003',
     ]
+    # these need to match the sources 1 to 1
 
     dds = [
-        [1, 3],
+        # [1, 3],
         [2, 3],
         [4, 6],
     ]
     legends = [
-        {"M2": [0.75, 0.25], "K1": [0.1, 0.025],},
+        # {"M2": [0.75, 0.25], "K1": [0.1, 0.025],},
         {"M2": [0.5, 0.1], "K1": [0.05, 0.01],},
         {"M2": [1.0, 0.3], "K1": [0.1, 0.03],},
     ]
     denoms_ell = {"M2": 8, "K1": 2}
-
     extents = [
-        (-153.05, -151.7, 59.1, 60.0), 
+        # (-153.05, -151.7, 59.1, 60.0), 
         (-152.15, -151.2, 60.2, 60.8), 
         (-152.15, -151.2, 60.2, 60.8)
         ]
@@ -278,9 +279,9 @@ for model_name in model_names:
         ukey, vkey = "east", "north"
         base = omsa.paths.Paths(f"hfradar_{model_name}").MODEL_CACHE_DIR
         if "2006" in source_name:
-            datestr = "2006-11-12_2007-01-01"
+            datestr = "2006-11-12_2007-11-11"
         elif "2003" in source_name:
-            datestr = "2003-01-01_2003-06-09"
+            datestr = "2002-12-08_2003-06-15"
         elif "2009" in source_name:
             datestr = "2009-04-19_2009-06-07"
         model_file_name1 = f"{base}/hfradar_{source_name}_{ukey}_{datestr}.nc"
@@ -289,6 +290,10 @@ for model_name in model_names:
         ds = ds.assign_coords({"lon": ds.lon,"lat": ds.lat, "s_rho": ds.s_rho})
         ds = ds.load()
         # import pdb; pdb.set_trace()
+
+        # catch when model has all giant fill values
+        ds[ds.cf["east"].name] = ds.cf["east"].where(abs(ds.cf["east"]) < 100)
+        ds[ds.cf["north"].name] = ds.cf["north"].where(abs(ds.cf["north"]) < 100)
 
         # run on model output (already run on data)
         save_file = pathlib.Path(model_file_name1).parent / f"{slug}_{source_name}_tidecons.nc"

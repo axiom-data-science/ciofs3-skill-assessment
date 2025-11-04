@@ -63,6 +63,7 @@ key_variables = [
     ]
 
 model_only = False
+skip_plotting = False
 
 # MOVE TO DICT OPTIONS
 # key_variable=["east","north"]
@@ -130,6 +131,12 @@ def remove_under_50_percent_data(ds, dd):
     coord_diff = list(set(ds.coords) - set(ds_masked.coords))
     if len(coord_diff) == 1:
         ds_masked[coord_diff[0]] = ds[coord_diff[0]]
+
+    # ds.cf["east"].where(ds.cf["east"] < 100)
+    
+    for var in ds_masked.data_vars:
+        ds_masked[var] = ds_masked[var].where(abs(ds_masked.cf[var]) < 1000)
+
     return ds_masked
 
 # change units
@@ -155,22 +162,24 @@ def subtidal_dataset(ds):
 import cartopy
 
 inputs_dict = {}
-inputs_dict["lower-ci_system-B_2006-2007"] =  {"figsize": (15,8), "extent": (-153.05, -151.7, 59.1, 60.0),
-                                                   "indexer": {"X": slice(None,None,1), "Y": slice(None, None, 1)},
-                                                #    "user_min_time": "2006-11-12T00", "user_max_time": "2007-01-01T00",
-                                                   }
-# inputs_dict["upper-ci_system-A_2002-2003"] = {"figsize": (15,8), 
-#                                              "indexer": {"X": slice(None,None,3), "Y": slice(None, None, 3)},
-#                                                  "extent": (-152.15, -151.2, 60.2, 60.8),
-#                                                 #  "user_min_time": "2003-01-01T00", "user_max_time": "2003-06-09T20",
-#                                                  }
-inputs_dict["upper-ci_system-A_2009"] = {"figsize": (15,8), 
+# inputs_dict["lower-ci_system-B_2006-2007"] =  {"figsize": (15,8), "extent": (-153.05, -151.7, 59.1, 60.0),
+#                                                    "indexer": {"X": slice(None,None,1), "Y": slice(None, None, 1)},
+#                                                 #    "user_min_time": "2006-11-12T00", "user_max_time": "2007-01-01T00",
+#                                                    }
+inputs_dict["upper-ci_system-A_2002-2003"] = {"figsize": (15,8), 
                                              "indexer": {"X": slice(None,None,3), "Y": slice(None, None, 3)},
                                                  "extent": (-152.15, -151.2, 60.2, 60.8),
                                                 #  "user_min_time": "2003-01-01T00", "user_max_time": "2003-06-09T20",
                                                  }
+# inputs_dict["upper-ci_system-A_2009"] = {"figsize": (15,8), 
+#                                              "indexer": {"X": slice(None,None,3), "Y": slice(None, None, 3)},
+#                                                  "extent": (-152.15, -151.2, 60.2, 60.8),
+#                                                 #  "user_min_time": "2003-01-01T00", "user_max_time": "2003-06-09T20",
+#                                                  }
 
 ref_dict = {}
+# use this for running processed files for taylor diagrams to compare with CIOFS fresh
+# ref_dict["lower-ci_system-B_2006-2007"] =  {"user_min_time": "2006-11-12T00", "user_max_time": "2007-01-01T00",}
 ref_dict["lower-ci_system-B_2006-2007"] =  {
                                                 #    "user_min_time": "2007-10-01T00", "user_max_time": "2007-11-11T00",
                                                 #    "user_min_time": "2007-09-01T00", "user_max_time": "2007-10-01T00",
@@ -184,8 +193,15 @@ ref_dict["lower-ci_system-B_2006-2007"] =  {
                                                 #    "user_min_time": "2007-01-01T00", "user_max_time": "2007-02-01T00",
                                                    "user_min_time": "2006-11-12T00", "user_max_time": "2007-11-11T00",
                                                    }
+# use this for running processed files for taylor diagrams to compare with CIOFS fresh
+# ref_dict["upper-ci_system-A_2002-2003"] = {"user_min_time": "2003-01-01T00", "user_max_time": "2003-06-15T00",}
 ref_dict["upper-ci_system-A_2002-2003"] = {
-#                                                  "user_min_time": "2002-12-08T00", "user_max_time": "2003-06-09T20",
+                                                #  "user_min_time": "2003-05-01T00", "user_max_time": "2003-06-15T00",
+                                                #  "user_min_time": "2003-04-01T00", "user_max_time": "2003-05-01T00",
+                                                #  "user_min_time": "2003-03-01T00", "user_max_time": "2003-04-01T00",
+                                                #  "user_min_time": "2003-02-01T00", "user_max_time": "2003-03-01T00",
+                                                #  "user_min_time": "2003-01-01T00", "user_max_time": "2003-02-01T00",
+                                                #  "user_min_time": "2002-12-08T00", "user_max_time": "2003-01-01T00",
                                                  "user_min_time": "2002-12-08T00", "user_max_time": "2003-06-15T00",
                                                  }
 ref_dict["upper-ci_system-A_2009"] = {
@@ -195,47 +211,47 @@ ref_dict["upper-ci_system-A_2009"] = {
 plots = {}
 plots["lower-ci_system-B_2006-2007"] =        {
                                                    "subtidal-mean": {
-                                                    #    "scale": 0.00005, 
+                                                       "scale": 0.00005, 
                                                                      "legend_arrow_length": 0.1, 
                                                                     },
-                                                   "hourly-tidal": {
-                                                       "scale": 0.0003, 
-                                                                     "legend_arrow_length": 1, 
-                                                                     "subplot_description": "Surface currents",
-                                                                    },
-                                                   "6hourly-subtidal": {
-                                                       "scale": 0.0003, 
-                                                                     "legend_arrow_length": 1, 
-                                                                     "subplot_description": "Subtidal surface currents averaged over 6 hours",
-                                                                    },
+#                                                 #    "hourly-tidal": {
+#                                                 #        "scale": 0.0003, 
+#                                                 #                      "legend_arrow_length": 1, 
+#                                                 #                      "subplot_description": "Surface currents",
+#                                                 #                     },
+#                                                 #    "6hourly-subtidal": {
+#                                                 #        "scale": 0.0003, 
+#                                                 #                      "legend_arrow_length": 1, 
+#                                                 #                      "subplot_description": "Subtidal surface currents averaged over 6 hours",
+#                                                 #                     },
                                                  }
-# plots["upper-ci_system-A_2002-2003"] =        {
-#                                                    "hourly-tidal": {
-#                                                        "scale": 0.0008,  
-#                                                                      "legend_arrow_length": 2,  
-#                                                                      "subplot_description": "Surface currents",
-#                                                                     },
-#                                                    "6hourly-subtidal": {
-#                                                        "scale": 0.0008, 
-#                                                                      "legend_arrow_length": 2, 
-#                                                                      "subplot_description": "Subtidal surface currents averaged over 6 hours",
-#                                                                     },
-#                                                    "subtidal-mean": {
-#                                                        "scale": 0.00015, 
-#                                                                      "legend_arrow_length": 0.1,  #0.5, 
-#                                                                     },
-#                                                  }
-plots["upper-ci_system-A_2009"] =        {
-                                                   "hourly-tidal": {
-                                                       "scale": 0.0008,  
-                                                                     "legend_arrow_length": 2,  
-                                                                     "subplot_description": "Surface currents",
-                                                                    },
+plots["upper-ci_system-A_2002-2003"] =        {
+                                                #    "hourly-tidal": {
+                                                #        "scale": 0.0008,  
+                                                #                      "legend_arrow_length": 2,  
+                                                #                      "subplot_description": "Surface currents",
+                                                #                     },
                                                    "6hourly-subtidal": {
                                                        "scale": 0.0008, 
                                                                      "legend_arrow_length": 2, 
                                                                      "subplot_description": "Subtidal surface currents averaged over 6 hours",
                                                                     },
+                                                #    "subtidal-mean": {
+                                                #        "scale": 0.00015, 
+                                                #                      "legend_arrow_length": 0.1,  #0.5, 
+                                                #                     },
+                                                 }
+plots["upper-ci_system-A_2009"] =        {
+                                                #    "hourly-tidal": {
+                                                #        "scale": 0.0008,  
+                                                #                      "legend_arrow_length": 2,  
+                                                #                      "subplot_description": "Surface currents",
+                                                #                     },
+                                                #    "6hourly-subtidal": {
+                                                #        "scale": 0.0008, 
+                                                #                      "legend_arrow_length": 2, 
+                                                #                      "subplot_description": "Subtidal surface currents averaged over 6 hours",
+                                                #                     },
                                                    "subtidal-mean": {
                                                        "scale": 0.00015, 
                                                                      "legend_arrow_length": 0.1,  #0.5, 
@@ -321,6 +337,8 @@ for key_variable in key_variables:
                         override_processed=override_processed,
                         override_stats=override_stats,
                         xcmocean_options=xcmocean_options,
+                        
+                        skip_plotting=skip_plotting,
                         
                         override_mask_lon=override_mask_lon,
                         locstream=locstream,

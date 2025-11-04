@@ -13,12 +13,10 @@ kernelspec:
 
 # Overview Mooring Data
 
-UPDATE
-In the map below, some stations are at the same or nearly same location, in which case the marker representing their location is shifted slightly to allow for both to be seen. Datasets that span more than 1 year are represented by the number of years they span: one marker per year. By necessity these markers are moved in space from the actual station location and arranged into a grid so they can all be seen. Therefore, their locations in the skill score plots do not represent their actual locations.
+The performance of the CIOFSv3 model for mooring data is summarized on this page. Shown below are a map of dataset locations, Taylor diagrams summarizing performance across the three CIOFS historical models, and overview maps showing markers colored to indicate the skill score of the model-data comparisons for each dataset.
 
-The skill scores below represent the skill of each model by variable and processing listed. The models perform similarly for sea surface height: they capture the tidal signal well and the subtidal signal less well, though some improvement is noticeable for CIOFS fresh as compared with CIOFS hindcast for the subtidal sea surface height. The models perform similarly for temperature; they capture the tidal and subtidal seasonal cycles and do moderately well on the subtiddal temperature with the monthly anomaly subtracted. For salinity, CIOFS fresh shows moderate improvement over CIOFS hindcast.
-
-[91MB zipfile of plots and stats files](https://files.axds.co/ciofs_fresh/zip/moorings.zip)
+* [160MB zipfile of plots and stats files](https://files.axds.co/ciofs3/zip/moorings.zip)
+* [155MB Moorings model-data comparison as PDF](https://files.axds.co/ciofs3/pdfs/moorings.pdf)
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -50,8 +48,8 @@ import subprocess
 ins_type = "moorings"  # instrument name
 models = ["ciofs3"]
 
-years = [1999, 2000, 2001, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 
-         2017, 2018, 2019, 2020]
+years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+         2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 # can only do these when running in docker with playwright available
 # once they exist, can run outside of docker because don't need to
@@ -176,11 +174,7 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
-```{glue:figure} fig_map
-:name: "fig-overview-moorings-map"
 
-All mooring stations, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
 
 +++
 
@@ -188,7 +182,7 @@ All mooring stations, by project. Click on a legend entry to toggle the transpar
 ```{figure} build_figures/moorings_map.png
 :name: "fig-overview-moorings-map"
 
-All mooring stations, by project. (PNG screenshot, available for PDF and for saving image.)
+All mooring stations, by project.
 ```
 ````
 
@@ -196,14 +190,20 @@ All mooring stations, by project. (PNG screenshot, available for PDF and for sav
 
 ## Taylor Diagrams
 
-Taylor diagrams summarize the skill of the two models in capturing the moorings datasets. The data has been grouped by region (Figs. {numref}`{number}<fig-moorings_by_region_ssh>`, {numref}`{number}<fig-moorings_by_region_temp>`, and {numref}`{number}<fig-moorings_by_region_salt>`). Sea surface height ({numref}`Fig. {number}<fig-moorings_by_region_ssh>`) is captured well by the models outside of Cook Inlet and in Upper Cook Inlet, but less well in Kachemak Bay. Both models have too low variance and correlation in capturing the subtidal sea surface height, but is better for CIOFS Fresh than Hindcast. Temperature ({numref}`Fig. {number}<fig-moorings_by_region_temp>`) is medium to well-captured in both models for the full and subtidal signals. For the subtidal anomaly, the models perform similarly to each other but none of the regions show good performance. Salinity time series ({numref}`Fig. {number}<fig-moorings_by_region_salt>`) are poorly captured across the board for both models. Skill scores are shown in the next plots for each dataset.
+The present Taylor diagrams summarize the skill of the three historical CIOFS models in capturing the moorings datasets. Only datasets from years for which all three CIOFS historical models are available are used, which are 2003-2006 and 2012-2014 (the years modeled for CIOFS fresh).
+
+The data has been grouped by region (Figs. {numref}`{number}<fig-moorings_by_region_ssh>`, {numref}`{number}<fig-moorings_by_region_temp>`, and {numref}`{number}<fig-moorings_by_region_salt>`). Sea surface height ({numref}`Fig. {number}<fig-moorings_by_region_ssh>`) is captured well by the models outside of Cook Inlet and in Upper Cook Inlet (correlation of $r\sim0.99$), but less well in Kachemak Bay ($r\sim0.7$), and the models perform about the same. For subtidal sea surface height, performance is poor in Kachemak Bay ($r\sim0.2$ and low variance) and outside Cook Inlet ($r\sim0.4$ and low variance); in upper Cook Inlet the models generally perform better and those with improved freshwater forcing (CIOFS Fresh and CIOFSv3, $r\sim0.8$) perform better than CIOFS Hindcast ($r\sim0.7$ and lower variance). 
+
+Temperature ({numref}`Fig. {number}<fig-moorings_by_region_temp>`) is medium ($r\sim0.7$) to well-captured ($r\sim0.95$) in the models for the full and subtidal signals, and the models perform similarly. For the subtidal anomaly, the models perform similarly to each other but none of the regions show good performance, though for lower Cook Inlet the models has too much variance, especially CIOFSv3. 
+
+Salinity time series ({numref}`Fig. {number}<fig-moorings_by_region_salt>`) are poorly captured across the board for the models, though CIOFSv3 performs better in Kachemak Bay in terms of variance.
 
 
 ```{figure} ../figures/taylor_diagrams/moorings_by_region_ssh.png
 ---
 name: fig-moorings_by_region_ssh
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for sea surface height: full signal minus the mean (left) and subtidal, grouped by region of Cook Inlet, for moorings.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for sea surface height: full signal minus the mean (left) and subtidal, grouped by region of Cook Inlet, for moorings.
 ```
 
 
@@ -211,7 +211,7 @@ Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (tria
 ---
 name: fig-moorings_by_region_temp
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for temperature: full signal (left), subtidal (center), and subtidal (right) minus the monthly mean, grouped by region of Cook Inlet, for moorings.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for temperature: full signal (left), subtidal (center), and subtidal (right) minus the monthly mean, grouped by region of Cook Inlet, for moorings.
 ```
 
 
@@ -219,7 +219,7 @@ Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (tria
 ---
 name: fig-moorings_by_region_salt
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for salinity: full signal (left), subtidal (center), and subtidal (right) minus the monthly mean, grouped by region of Cook Inlet, for moorings.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for salinity: full signal (left), subtidal (center), and subtidal (right) minus the monthly mean, grouped by region of Cook Inlet, for moorings.
 ```
 
 ```{code-cell} ipython3
@@ -459,6 +459,11 @@ def make_figures(model, key_variable, which, clabel, titles):
 
 ## Skill Scores
 
+In the map below, some stations are at the same or nearly same location, in which case the marker representing their location is shifted slightly to allow for both to be seen. Datasets that span more than 1 year are represented by the number of years they span: one marker per year. By necessity these markers are moved in space from the actual station location and arranged into a grid so they can all be seen. Therefore, their locations in the skill score plots do not represent their actual locations. In the interactive version of this report, readers can zoom in for a better view.
+
+The skill scores below represent the skill of the CIOFSv3 model by variable and processing listed. The model captures the tidal sea surface height signal well and the subtidal signal less well. Similarly for temperature, the model captures the tidal and subtidal seasonal cycles, and does moderately well on the subtiddal temperature with the monthly anomaly subtracted. The model somewhat captures the salinity time series. The high skill scores for subtidal salinity with monthly means subtracted should be discounted (particularly for station `nerrs_kachdwq`) as they are due to erroneously high monthly means (calculated across spurious measurements) that are the dominant signal.
+
+
 ### Sea Surface Height
 
 ```{code-cell} ipython3
@@ -473,20 +478,14 @@ ssh_plot, figname, abs_path = make_figures(models[0], key_variables, whiches, cl
 glue("ssh_plot", ssh_plot, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} ssh_plot
-:name: "fig-overview-moorings-ssh"
 
-Skill scores for CIOFSv3 with moorings for tidal (left) and subtidal (right) sea surface height with mean subtracted for moorings, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/moorings_ssh_subtract-mean.png
 :name: "fig-overview-moorings-ssh"
 
-Skill scores for CIOFSv3 with moorings for tidal (left) and subtidal (right) sea surface height with mean subtracted for moorings, by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with moorings for tidal (left) and subtidal (right) sea surface height with mean subtracted for moorings, by project.
 ```
 
 +++
@@ -508,20 +507,14 @@ tidal_temp, figname, abs_path = make_figures(models[0], key_variables, whiches, 
 glue("tidal_temp", tidal_temp, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} tidal_temp
-:name: "fig-overview-moorings-tidal-temp"
 
-Skill scores for CIOFSv3 with moorings for tidal sea temperature, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/moorings_temp.png
 :name: "fig-overview-moorings-tidal-temp"
 
-Skill scores for CIOFSv3 with moorings for tidal sea temperature, by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with moorings for tidal sea temperature, by project.
 ```
 
 +++
@@ -541,20 +534,14 @@ temp_plot_subtidal, figname, abs_path = make_figures(models[0], key_variables, w
 glue("temp_plot_subtidal", temp_plot_subtidal, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} temp_plot_subtidal
-:name: "fig-overview-moorings-subtidal-temp"
 
-Skill scores for CIOFSv3 with moorings for subtidal temperature (left) and subtidal temperature anomaly (right), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/moorings_temp_subtidal.png
 :name: "fig-overview-moorings-subtidal-temp"
 
-Skill scores for CIOFSv3 with moorings for subtidal temperature (left) and subtidal temperature anomaly (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with moorings for subtidal temperature (left) and subtidal temperature anomaly (right), by project.
 ```
 
 +++
@@ -576,20 +563,14 @@ tidal_salt, figname, abs_path = make_figures(models[0], key_variables, whiches, 
 glue("tidal_salt", tidal_salt, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} tidal_salt
-:name: "fig-overview-moorings-tidal-salt"
 
-Skill scores for CIOFSv3 with moorings for tidal salinity, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/moorings_salt.png
 :name: "fig-overview-moorings-tidal-salt"
 
-Skill scores for CIOFSv3 with moorings for tidal salinity, by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with moorings for tidal salinity, by project.
 ```
 
 +++
@@ -609,18 +590,12 @@ salt_plot_subtidal, figname, abs_path = make_figures(models[0], key_variables, w
 glue("salt_plot_subtidal", salt_plot_subtidal, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} salt_subtidal
-:name: "fig-overview-moorings-subtidal-salt"
 
-Skill scores for CIOFSv3 with moorings for subtidal salinity (left) and subtidal salinity anomaly (right), by project. Click on a legend entry to toggle the transparency.
-```
-````
 
 +++
 
 ```{figure} build_figures/moorings_salt_subtidal.png
 :name: "fig-overview-moorings-subtidal-salt"
 
-Skill scores for CIOFSv3 with moorings for subtidal salinity (left) and subtidal salinity anomaly (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with moorings for subtidal salinity (left) and subtidal salinity anomaly (right), by project.
 ```

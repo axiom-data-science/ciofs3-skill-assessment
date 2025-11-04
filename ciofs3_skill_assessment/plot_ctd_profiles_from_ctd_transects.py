@@ -12,15 +12,20 @@ import cf_pandas as cfp
 vocab=cic.utils.vocab
 cfp.set_options(custom_criteria=vocab.vocab)
 
+# years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+#          2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+maxTime = pd.Timestamp("2024-08-30")
+
 slugs = [        
-        #  "ctd_transects_barabara_to_bluff_2002_2003",
-        # "ctd_transects_otf_kbnerr",  
-        # "ctd_transects_cmi_kbnerr",  #
-        # "ctd_transects_cmi_uaf", 
+         "ctd_transects_barabara_to_bluff_2002_2003",
+        "ctd_transects_otf_kbnerr",  
+        "ctd_transects_cmi_kbnerr",  #
+        "ctd_transects_cmi_uaf", 
         "ctd_transects_gwa", #
         "ctd_transects_uaf",  #
+        'ctd_transects_misc_2002',
 ]
-model_names = ["ciofs_hindcast", "ciofs_fresh"]
+model_names = ["ciofs3"]
 key_variables=["temp","salt"]
 vardescs = ["Sea temperature [C]", "Salinity"]
 # featuretype = "profile"
@@ -32,7 +37,14 @@ for slug in slugs:
     cat = intake.open_catalog(loc)
     
     for dataset in list(cat):
+        # import pdb; pdb.set_trace()
         print(dataset)
+        
+        if pd.Timestamp(cat[dataset].metadata["maxTime"]) > maxTime:
+            print(f"Skipping {dataset} not in years")
+            continue
+        
+        
         # obs = None
         obs = {key_variable: None for key_variable in key_variables}
         # models = []
@@ -41,7 +53,7 @@ for slug in slugs:
             
             for model in model_names:
                 # print(model)
-                path = Path(f"/home/kristen/.cache/ocean-model-skill-assessor/{slug}_{model}/processed/{slug}_{dataset}_{key_variable}_model.nc")
+                path = Path(f"/home/kristen/.cache/ocean-model-skill-assessor/{slug}_{model}/processed/{slug}_{dataset.replace(" ","_")}_{key_variable}_model.nc")
 
                 try:
                     models[key_variable].append(xr.open_dataset(path))
@@ -56,17 +68,22 @@ for slug in slugs:
                 
 
         # Plotting the CTD profiles
-        if len(models[key_variables[0]]) == 1 or len(models[key_variables[1]]) == 1:
-            continue
+        # if len(models[key_variables[0]]) == 1 or len(models[key_variables[1]]) == 1:
+        #     import pdb; pdb.set_trace()
+        #     continue
 
         # by station
-        stations = obs[key_variables[0]].cf["station"].unique()
-
+        try:
+            stations = obs[key_variables[0]].cf["station"].unique()
+        except AttributeError:
+            import pdb; pdb.set_trace()
 
         for station in stations:
             figname=f"figures/{slug}/{dataset}/{str(station).replace('.','_')}.png"
             if Path(figname).exists():
+                print(f"Figure {figname} already exists, skipping")
                 continue
+            print(f"Plotting station {station}")
             # import pdb; pdb.set_trace()
             figs, axes = [], []
             for key_variable, vardesc in zip(key_variables, vardescs):

@@ -15,7 +15,12 @@ import cmocean.cm as cmo
 import cook_inlet_catalogs as cic
 
 
-cat_model = intake.open_catalog("models.yaml")
+# model_slug = "v4j"
+# cat_model = intake.open_catalog(f"models_{model_slug}.yaml")
+
+
+cat_model = intake.open_catalog("models_v4.yaml")
+# cat_model = intake.open_catalog("models.yaml")
 
 
 slugs = [
@@ -35,6 +40,7 @@ models = ["ciofs3"]
 key_variables=["temp","salt"]
 vardescs = ["Sea temperature [C]", "Salinity"]
 wetdry=False
+override_plot=False
 
 override_chunks = {"s_rho": 30, "s_w": 31}
 
@@ -73,7 +79,7 @@ for slug in slugs:
                          override_model=False,
                          override_processed=False,
                          override_stats=False,
-                         override_plot=False,
+                         override_plot=override_plot,
                     wetdry=wetdry,
                          
                     override_chunks=override_chunks,

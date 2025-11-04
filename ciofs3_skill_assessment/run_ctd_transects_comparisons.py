@@ -14,17 +14,21 @@ import extract_model as em
 import cmocean.cm as cmo
 import cook_inlet_catalogs as cic
 
+
+# model_slug = "v4j"
+# cat_model = intake.open_catalog(f"models_{model_slug}.yaml")
+
 cat_model = intake.open_catalog("models.yaml")
 
 
 slugs = [        
-         "ctd_transects_barabara_to_bluff_2002_2003",
-        "ctd_transects_otf_kbnerr",  
-        "ctd_transects_cmi_kbnerr",  #
-        "ctd_transects_cmi_uaf", 
+        #  "ctd_transects_barabara_to_bluff_2002_2003",
+        # "ctd_transects_otf_kbnerr",  
+        # "ctd_transects_cmi_kbnerr",  #
+        # "ctd_transects_cmi_uaf", 
         "ctd_transects_gwa", #
-        "ctd_transects_uaf",  #
-        'ctd_transects_misc_2002',
+        # "ctd_transects_uaf",  #
+        # 'ctd_transects_misc_2002',
 ]
 models = ["ciofs3"]
 # models = ["ciofs_hindcast"]

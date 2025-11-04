@@ -14,13 +14,10 @@ kernelspec:
 (page:overview_adcp)=
 # Overview ADCP Data
 
-UPDATE ME
-Comparisons between each model and ADCP datasets are shown below, first in Taylor diagrams, then in maps of skill scores where each marker is colored to indicate the skill score of the comparison. 
+The performance of the CIOFSv3 model for ADCP data is summarized on this page. Shown below are a map of dataset locations, Taylor diagrams summarizing performance across the three CIOFS historical models, and overview maps showing markers colored to indicate the skill score of the model-data comparisons for each dataset.
 
-The two models perform similarly to each other with the exception of increased variance in CIOFS Fresh for subtidal variable comparisons. They both generally perform well for tidal time series and only moderately well for subtidal time series.
-
-UPDATE ME
-[77MB zipfile of plots and stats files](https://files.axds.co/ciofs_fresh/zip/adcp.zip)
+* [60MB zipfile of plots and stats files](https://files.axds.co/ciofs3/zip/adcp.zip)
+* [70MB ADCP model-data comparison as PDF](https://files.axds.co/ciofs3/pdfs/adcp.pdf)
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -50,8 +47,8 @@ import subprocess
 
 ins_type = "adcp"  # instrument name
 models = ["ciofs3"]
-years = [1999, 2000, 2001, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 
-         2017, 2018, 2019, 2020]
+years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+         2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 # can only do these when running in docker with playwright available
 # once they exist, can run outside of docker because don't need to
@@ -147,13 +144,7 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} fig_map
-:name: "fig-overview-adcp-map"
 
-All ADCP deployments, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
@@ -161,7 +152,7 @@ All ADCP deployments, by project. Click on a legend entry to toggle the transpar
 ```{figure} build_figures/adcp_map.png
 :name: "fig-overview-adcp-map"
 
-All ADCP deployments, by project. (PNG screenshot, available for PDF and for saving image.)
+All ADCP deployments, by project.
 ```
 ````
 
@@ -169,51 +160,52 @@ All ADCP deployments, by project. (PNG screenshot, available for PDF and for sav
 
 ## Taylor Diagrams
 
-UPDATE
+The present Taylor diagrams summarize the skill of the three historical CIOFS models in capturing the ADCP datasets. Only datasets from years for which all three CIOFS historical models are available are used, which are 2003-2006 and 2012-2014 (the years modeled for CIOFS fresh).
 
-Taylor diagrams summarize the skill of the two models in capturing the ADCP moorings. The data has been grouped by region (Figs. {numref}`{number}<fig-adcp_moored_by_region_east>`, {numref}`{number}<fig-adcp_moored_by_region_north>`, {numref}`{number}<fig-adcp_moored_by_region_speed>`) and season (Figs. {numref}`{number}<fig-adcp_moored_by_season_east>`, {numref}`{number}<fig-adcp_moored_by_season_north>`, {numref}`{number}<fig-adcp_moored_by_season_speed>`). The results show that CIOFS fresh and CIOFS hindcast perform similarly for tidal results. For the subtidal along-channel velocity component by region, CIOFS Hindcast and CIOFS Fresh have mostly similar correlation coefficients, but CIOFS Fresh has more accurate variance. By season, CIOFS Fresh has more accurate variance again though in the spring both models have too high of variance. For the across-channel subtidal component, the two models again have similar correlation coefficients but CIOFS Fresh has more accurate variance in Upper Cook Inlet; in Kachemak Bay and Central Cook Inlet CIOFS Hindcast is more accurate. When considering subtidal speed, we see that the two models perform similarly to each other. Skill scores are shown in the next plots for each dataset.
+The data has been grouped by region (Figs. {numref}`{number}<fig-adcp_moored_by_region_east>`, {numref}`{number}<fig-adcp_moored_by_region_north>`, {numref}`{number}<fig-adcp_moored_by_region_speed>`) and season (Figs. {numref}`{number}<fig-adcp_moored_by_season_east>`, {numref}`{number}<fig-adcp_moored_by_season_north>`, {numref}`{number}<fig-adcp_moored_by_season_speed>`). The results show that the models perform similarly for tidal results. 
 
+The variance for CIOFS Fresh and CIOFSv3 is mostly accurate for the subtidal along-channel velocity component, across regions, whereas CIOFS Hindcast is mostly low. Correlation is similar for the models and is lowest ($r\sim0.3$) outside Cook Inlet and highest ($r\sim0.9$) in central Cook Inlet. Subtidal along-channel velocity is more accurately predicted in the spring ($r\sim0.9$ correlation) than the summer ($r\sim0.7$ correlation). Subtidal across-channel velocity comparisons are more scattered. Correlation coefficients are between 0.4 and 0.7 across regions but with widely varying variance and relative model performance. Subtidal across-channel velocity is predicted more accurately in the summer ($r\sim0.6$) than the spring ($r\sim0.4$). The subtidal speed is mostly well-captured across regions by the models with correlation coefficients between 0.8 (upper Cook Inlet) and 0.99 (Kachemak Bay) and similar variance to the data, with models performing similarly. By season, the models are clustered with accurate variance and correlation of 0.95.
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_region_east.png
 ---
 name: fig-adcp_moored_by_region_east
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the along-channel component of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the along-channel component of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
 ```
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_region_north.png
 ---
 name: fig-adcp_moored_by_region_north
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the across-channel component of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the across-channel component of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
 ```
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_region_speed.png
 ---
 name: fig-adcp_moored_by_region_speed
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the magnitude of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the magnitude of velocity with tides (left) and subtidal (right), grouped by region of Cook Inlet, for moored ADCP datasets.
 ```
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_season_east.png
 ---
 name: fig-adcp_moored_by_season_east
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the along-channel component of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the along-channel component of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
 ```
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_season_north.png
 ---
 name: fig-adcp_moored_by_season_north
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the across-channel component of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the across-channel component of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
 ```
 
 ```{figure} ../figures/taylor_diagrams/adcp_moored_by_season_speed.png
 ---
 name: fig-adcp_moored_by_season_speed
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for the magnitude of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for the magnitude of velocity with tides (left) and subtidal (right), grouped by season, for moored ADCP datasets.
 ```
 
 ```{code-cell} ipython3
@@ -369,7 +361,10 @@ def make_figures(model, key_variable, which):
     return variable_plot, figname, abs_path
 ```
 
-## Results
+## Skill Scores
+
+The CIOFSv3 model has high skill in representing the tidal speed and along- and across-channel velocities through the main Cook Inlet channel. Outside of the Inlet, around Kodiak Island, skill scores drop from over 0.9 to 0.3 to 0.6 for tidal speed and along-channel velocity and mostly low skill for across-channel velocity. Skill scores for subtidal speed are similar to tidal speed: high in the Inlet and lower outside. Subtidal velocity component skill scores are mostly over 0.5 in the Inlet and under 0.5 around Kodiak Island.
+
 
 ### Tidal
 
@@ -386,23 +381,17 @@ tidal_speed, figname, abs_path = make_figures(models[0], key_variable, which)
 glue("tidal_speed", tidal_speed, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} tidal_speed
-:name: "fig-overview-adcp-tidal-speed"
 
-Skill scores for CIOFSv3 with ADCP moorings for horizontal speed, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/adcp_tidal_speed_rotate.png
 :name: "fig-overview-adcp-tidal-speed"
 
-Skill scores for CIOFSv3 with ADCP moorings for horizontal speed, by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with ADCP moorings for horizontal speed, by project.
 ```
 
-+++ {"tags": ["full-width"]}
++++
 
 #### Along- and Across-Channel Velocity
 
@@ -415,20 +404,14 @@ both_tidal, figname, abs_path = make_figures(models[0], key_variables, which)
 glue("both_tidal", both_tidal, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} both_tidal
-:name: "fig-overview-adcp-tidal"
 
-Skill scores for CIOFSv3 with ADCP moorings for along-channel (left) and across-channel velocity (right), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/adcp_tidal_east_rotate_north_rotate.png
 :name: "fig-overview-adcp-tidal"
 
-Skill scores for CIOFSv3 with ADCP moorings for along-channel (left) and across-channel velocity (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with ADCP moorings for along-channel (left) and across-channel velocity (right), by project.
 ```
 
 +++
@@ -448,20 +431,14 @@ subtidal_speed, figname, abs_path = make_figures(models[0], key_variable, which)
 glue("subtidal_speed", subtidal_speed, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} subtidal_speed
-:name: "fig-overview-adcp-subtidal-speed"
 
-Skill scores for CIOFSv3 with ADCP moorings for subtidal horizontal speed, by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/adcp_subtidal_speed_rotate.png
 :name: "fig-overview-adcp-subtidal-speed"
 
-Skill scores for CIOFSv3 with ADCP moorings for subtidal horizontal speed, by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with ADCP moorings for subtidal horizontal speed, by project.
 ```
 
 +++
@@ -477,18 +454,12 @@ both_subtidal, figname, abs_path = make_figures(models[0], key_variables, which)
 glue("both_subtidal", both_subtidal, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} both_subtidal
-:name: "fig-overview-adcp-subtidal"
 
-Skill scores for CIOFSv3 with ADCP moorings for subtidal along-channel (left) and across-channel velocity (right), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/adcp_subtidal_east_rotate_north_rotate.png
 :name: "fig-overview-adcp-subtidal"
 
-Skill scores for CIOFSv3 with ADCP moorings for subtidal along-channel (left) and across-channel velocity (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with ADCP moorings for subtidal along-channel (left) and across-channel velocity (right), by project.
 ```

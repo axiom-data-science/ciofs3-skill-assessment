@@ -20,8 +20,9 @@ from datetimerange import DateTimeRange
 # define these in more_utils
 # models = ["ciofs_hindcast"]#, "ciofs_freshwater"]
 key_variables = ["ssh", "temp", "salt", "along", "across", "speed"]
-
-years = [2003, 2004, 2005, 2006, 2012, 2013, 2014]
+models = ["ciofs3"]
+years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+         2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 ## For CTD transects
 # hand-selected source names to use since often repeated
@@ -40,6 +41,12 @@ source_names = {"ctd_transects_barabara_to_bluff_2002_2003": ["Cruise 1"],
                               'transect_7-2012-07-30',
                               'transect_9-2012-02-14',
                               'transect_AlongBay-2012-08-15',], 
+        "ctd_transects_misc_2002": ['Bear_Jul-02',
+                                'Cohen',
+                                'Glacier',
+                                'Peterson_Jul-02',
+                                'PtAdam_jul-02',
+                                'pogibshi_Jul-02'],
         "ctd_transects_otf_kbnerr": ['2003-07-01'],
         "ctd_transects_uaf": ['Transect_01'], 
         "hfradar": ['lower-ci_system-B_2006-2007', 'upper-ci_system-A_2002-2003', 'upper-ci_system-A_2009']
@@ -112,18 +119,28 @@ dduse.hvplot(**cat.metadata["map"]) * ddlabelsuse.hvplot(**maplabels)
 
 def station_intersect_with_years(minTime, maxTime):
     # if there is any overlap between data and years, include
+    if "Z" in minTime:
+        minTime = minTime.replace("Z","")
+    if "Z" in maxTime:
+        maxTime = maxTime.replace("Z","")
     data_time_range = DateTimeRange(minTime, maxTime)
     flag = False
     for year in years:
         start = pd.Timestamp(f"{year}-01-01")
-        end = pd.Timestamp(f"{year}-12-31")
+        if year == 2024:
+            end = pd.Timestamp("2024-08-31")
+        else:
+            end = pd.Timestamp(f"{year}-12-31")
         model_time_range = DateTimeRange(start, end)
-        flag += data_time_range.is_intersection(model_time_range)
+        try:
+            flag += data_time_range.is_intersection(model_time_range)
+        except TypeError:
+            import pdb; pdb.set_trace()
     return flag
 
 def generate_page(slug, not_in_jupyter_book):   
 
-    for model in mu.models:
+    for model in models:
         paths = omsa.paths.Paths(mu.project_name(slug, model))
         here = mu.outdir(slug,model)
         if not here.exists():
@@ -160,9 +177,10 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
     ## Overall summary of statistics
     dfstats = mu.aggregate_overall_stats(slug)
     # import pdb; pdb.set_trace()
-    cols_to_use = ["source_name","ciofs_hindcast"]
-    if "ciofs_fresh" in dfstats.columns:
-        cols_to_use.append("ciofs_fresh")
+    cols_to_use = ["source_name","ciofs3"]
+    # cols_to_use = ["source_name","ciofs_hindcast"]
+    # if "ciofs_fresh" in dfstats.columns:
+    #     cols_to_use.append("ciofs_fresh")
     dfstats_by_heading = dfstats.reset_index().set_index(["key_variable","ts_mods"]).sort_index()[cols_to_use]
     
     
@@ -187,7 +205,7 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
 """
 
-        for model in mu.models:
+        for model in models:
             data_min_time, data_max_time = cat[source_name].metadata["minTime"], cat[source_name].metadata["maxTime"]
             data_min_time, data_max_time = pd.Timestamp(data_min_time.replace("Z","")), pd.Timestamp(data_max_time.replace("Z",""))
                 
@@ -240,28 +258,28 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
                     text = utils.mk_fig_wide(figname.name, label, caption, not_in_jupyter_book)
                     nb['cells'].extend([nbf.v4.new_markdown_cell(text),])
                 
-            for model in mu.models:
-                
+            for model in models:
+                header = ""
                 # if skip_nwgoa and model == "nwgoa":
                 #     continue
 
-                header = f"""\
-#### {model.upper()}
+#                 header = f"""\
+# #### {model.upper()}
 
-"""
+# """
                 
                 # loop over 1 row or multiple years of figures for 
                 # source_name, key_Variable, ts_mods combination
                 if isinstance(dfs, pd.Series):
                     dfs = dfs.to_frame().T
 
-                if len(dfs) > 1 and not not_in_jupyter_book:
+                # if len(dfs) > 1 and not not_in_jupyter_book:
 
-                    header += """
+#                     header += """
 
-`````{dropdown} Comparison plots by year
+# `````{dropdown} Comparison plots by year
 
-"""
+# """
                     
                 for row in dfs.iterrows():
                     row = row[1]
@@ -288,11 +306,11 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
                     #     caption += f" for {row ['start_time']}"
                     header += utils.mk_fig_wide(path, label, caption, not_in_jupyter_book)
 
-                if len(dfs) > 1 and not not_in_jupyter_book:
-                    header += """
+#                 if len(dfs) > 1 and not not_in_jupyter_book:
+#                     header += """
 
-`````
-"""
+# `````
+# """
 
 
                 nb['cells'].extend([nbf.v4.new_markdown_cell(header),])
@@ -309,10 +327,11 @@ def overview_hfradar(not_in_jupyter_book):
     slug = "hfradar"
     cat = intake.open_catalog(cic.utils.cat_path(slug))
     # source_names = list(cat)
-    source_names = ["lower-ci_system-B_2006",
-                    "upper-ci_system-A_2003"]
-    # source_names = ["lower-ci_system-B_2006-2007",
-    #                 "upper-ci_system-A_2002-2003"]
+    # source_names = ["lower-ci_system-B_2006",
+    #                 "upper-ci_system-A_2003"]
+    source_names = ["lower-ci_system-B_2006-2007",
+                    "upper-ci_system-A_2002-2003",
+                    "upper-ci_system-A_2009"]
 
     # #symlink in map from data comp dir
     # there = mu.COMP_PAGE_DIR(slug) / f"map_of_{slug}.png"
@@ -327,13 +346,14 @@ def overview_hfradar(not_in_jupyter_book):
 (page:overview_hfradar)=
 # Overview HF Radar Data
 
+The performance of the CIOFSv3 model for HF Radar data is summarized on this page. Shown below are a map of dataset locations, Taylor diagrams summarizing performance across the three CIOFS historical models, and overview maps showing markers colored to indicate the skill score of the model-data comparisons for each dataset.
+
 Detailed model-data comparison page: {{ref}}`HF Radar model-data comparison page <page:{slug}-comparison>`
 
 See the original full dataset description page in the [original report](https://ciofs.axds.co/outputs/pages/data/{slug}.html) for more information or the new [catalog page](https://cook-inlet-catalogs.readthedocs.io/en/latest/demo_notebooks/{slug}.html).
 
-Note that the map shows all datasets from the catalog; it is not limited to the current report time periods.
-
-[8MB zipfile of plots](https://files.axds.co/ciofs_fresh/zip/hfradar.zip)
+* [11MB zipfile of plots](https://files.axds.co/ciofs3/zip/hfradar.zip)
+* [14MB HF Radar model-data comparison as PDF](https://files.axds.co/ciofs3/pdfs/hfradar.pdf)
 """
 
     nb['cells'].append(pu.text_cell(text))
@@ -343,9 +363,34 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
     # Add map markdown cell
     nb['cells'].append(map_cell_ctd_transects(slug))
+    
+    text = f"""## Taylor Diagrams
+
+The present Taylor diagrams summarize the skill of the three historical CIOFS models in capturing the HF Radar datasets. Only datasets from years for which all three CIOFS historical models are available are used, which are 2003-2006 and 2012-2014 (the years modeled for CIOFS fresh).
+
+The data has been grouped by region ({{numref}}`Fig. {{number}}<fig-hfradar_by_region_east>`) and season ({{numref}}`Fig. {{number}}<fig-hfradar_by_region_north>`). 
+CIOFSv3 performs well (correlation coefficient $r\sim0.8$ and reasonable variance) for tidal north-south (approximately along-channel) HF Radar surface currents, but not as well ($r\sim0.3$ for lower Cook Inlet and $r\sim0.6$ for central Cook Inlet) for tidal east-west (approximately across-channel) currents. For subtidal currents, the north-south (along-channel) component is poorly captured, and east-west (across-channel) currents have some skill ($r\sim0.4$ for lower and central Cook Inlet). The three models perform similarly for all regions and variables.
+
+```{{figure}} ../figures/taylor_diagrams/hfradar_by_region_east.png
+---
+name: fig-hfradar_by_region_east
+---
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for east-west (approximately across-channel) tidal (left) and subtidal (right) velocities, grouped by region of Cook Inlet, for HF Radar datasets.
+```
+
+
+```{{figure}} ../figures/taylor_diagrams/hfradar_by_region_north.png
+---
+name: fig-hfradar_by_region_north
+---
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for north-south (approximately along-channel) tidal (left) and subtidal (right) velocities, grouped by region of Cook Inlet, for HF Radar datasets.
+```
+"""
+
+    nb['cells'].append(pu.text_cell(text))
 
     ## Loop over models first
-    for model_name in mu.models:
+    for model_name in models:
         
         nb['cells'].append(pu.text_cell(pu.header_text(model_name.upper(), header=2)))
 
@@ -379,7 +424,7 @@ def hfradar(slug, not_in_jupyter_book):
 
     # link project out directories to comparison page dir so can use the 
     # images as relative paths
-    for model in mu.models:
+    for model in models:
         paths = omsa.paths.Paths(mu.project_name(slug, model))
         here = mu.outdir(slug,model)
         if not here.exists():
@@ -410,12 +455,15 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
 
     # TIDAL ELLIPSES #
-    source_names = [
-                    "lower-ci_system-B_2006",
-                    "upper-ci_system-A_2003",
-                    # "lower-ci_system-B_2006-2007",
-                    # "upper-ci_system-A_2002-2003",
-                    ]
+    source_names = ["lower-ci_system-B_2006-2007",
+                    "upper-ci_system-A_2002-2003",
+                    "upper-ci_system-A_2009"]
+    # source_names = [
+    #                 "lower-ci_system-B_2006",
+    #                 "upper-ci_system-A_2003",
+    #                 # "lower-ci_system-B_2006-2007",
+    #                 # "upper-ci_system-A_2002-2003",
+    #                 ]
     ## Loop over source names
     for source_name in source_names:
         
@@ -433,8 +481,8 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
         for plot, filesuffix in zip(which_plot, filesuffixs):
             nb['cells'].append(pu.text_cell(pu.header_text(plot, header=3)))
             
-            for model in mu.models:
-                nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
+            for model in models:
+                # nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
 
                 text = ""
                 
@@ -447,12 +495,15 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
 
     # OTHER PLOTS # 
-    source_names = [
-                    # "lower-ci_system-B_2006",
-                    # "upper-ci_system-A_2003",
-                    "lower-ci_system-B_2006-2007",
+    source_names = ["lower-ci_system-B_2006-2007",
                     "upper-ci_system-A_2002-2003",
-                    ]
+                    "upper-ci_system-A_2009"]
+    # source_names = [
+    #                 # "lower-ci_system-B_2006",
+    #                 # "upper-ci_system-A_2003",
+    #                 "lower-ci_system-B_2006-2007",
+    #                 "upper-ci_system-A_2002-2003",
+    #                 ]
     ## Loop over source names
     for source_name in source_names:
         
@@ -472,14 +523,17 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
             nb['cells'].append(pu.text_cell(pu.header_text(plot, header=3)))
 
             if "2006" in source_name and "east_north" in filesuffix:
-                datestr = "2006-11-12_2007-01-01"
+                datestr = "2006-11-12_2007-11-11"
                 filesuffix = f"_east_north_{datestr}_{filesuffix.split('_east_north_')[-1]}"
             elif "2002" in source_name and "east_north" in filesuffix:
-                datestr = "2003-01-01_2003-06-09"
+                datestr = "2002-12-08_2003-06-15"
+                filesuffix = f"_east_north_{datestr}_{filesuffix.split('_east_north_')[-1]}"
+            elif "2009" in source_name and "east_north" in filesuffix:
+                datestr = "2009-04-19_2009-06-07"
                 filesuffix = f"_east_north_{datestr}_{filesuffix.split('_east_north_')[-1]}"
             
-            for model in mu.models:
-                nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
+            for model in models:
+                # nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
 
                 text = ""
                 
@@ -499,12 +553,15 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
 
     # TIDAL CONSTANT #        
-    source_names = [
-                    "lower-ci_system-B_2006",
-                    "upper-ci_system-A_2003",
-                    # "lower-ci_system-B_2006-2007",
-                    # "upper-ci_system-A_2002-2003",
-                    ]
+    source_names = ["lower-ci_system-B_2006-2007",
+                    "upper-ci_system-A_2002-2003",
+                    "upper-ci_system-A_2009"]
+    # source_names = [
+    #                 "lower-ci_system-B_2006",
+    #                 "upper-ci_system-A_2003",
+    #                 # "lower-ci_system-B_2006-2007",
+    #                 # "upper-ci_system-A_2002-2003",
+    #                 ]
     ## Loop over different source names
     for source_name in source_names:
         nb['cells'].append(pu.text_cell(pu.header_text(source_name, header=2)))        
@@ -515,14 +572,14 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
         # whichs = ["major","minor", "inclination", "phase"]
         which_plots = ["Major Amplitude", "Minor Amplitude", "Phase", "Inclination"]
         
-        for model in mu.models:
+        for model in models:
 
             text = ""
             
-            if not not_in_jupyter_book:
-                text = f"""
-`````{{dropdown}} {model.upper()}
-"""
+#             if not not_in_jupyter_book:
+#                 text = f"""
+# `````{{dropdown}} {model.upper()}
+# """
             for which_plot in which_plots:
                 text += pu.header_text(which_plot, 3)
                 
@@ -535,11 +592,11 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
                         caption = ""  #f"{tidecon} {which_plot.lower()} from surface currents for {model.upper()} and dataset {source_name}"
                         text += utils.mk_fig_wide(loc, label, caption, not_in_jupyter_book)
             
-            if not not_in_jupyter_book:
-                text += """
+#             if not not_in_jupyter_book:
+#                 text += """
 
-`````
-"""
+# `````
+# """
             nb["cells"].append(pu.text_cell(text))
 
     file = f'{mu.COMP_PAGE_DIR(slug) / slug}.ipynb'
@@ -557,7 +614,7 @@ def adcp(slug, not_in_jupyter_book):
 
     # link project out directories to comparison page dir so can use the 
     # images as relative paths
-    for model in mu.models:
+    for model in models:
         paths = omsa.paths.Paths(mu.project_name(slug, model))
         here = mu.outdir(slug,model)
         if not here.exists():
@@ -605,7 +662,7 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
                 nb['cells'].append(pu.text_cell(pu.header_text(vardesc.capitalize(), header=4)))
 
-                for model in mu.models:
+                for model in models:
                     nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=5)))
 
                     text = ""
@@ -635,7 +692,7 @@ def ctd_transects(slug, not_in_jupyter_book):
 
     # link project out directories to comparison page dir so can use the 
     # images as relative paths
-    for model in mu.models:
+    for model in models:
         paths = omsa.paths.Paths(mu.project_name(slug, model))
         here = mu.outdir(slug,model)
         if not here.exists():
@@ -679,8 +736,8 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
 
             nb['cells'].append(pu.text_cell(pu.header_text(vardesc, header=3)))
 
-            for model in mu.models:
-                nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
+            for model in models:
+                # nb['cells'].append(pu.text_cell(pu.header_text(model.upper(), header=4)))
 
                 text = ""
                 
@@ -706,7 +763,7 @@ def ctd_profiles(slug, not_in_jupyter_book):
 
     # link project out directories to comparison page dir so can use the 
     # images as relative paths
-    for model in mu.models:
+    for model in models:
         paths = omsa.paths.Paths(mu.project_name(slug, model))
         here = mu.outdir(slug,model)
         if not here.exists():
@@ -753,17 +810,18 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
         
         varnames = ["temp","salt"]
         vardescs = ["Sea Temperature [C]", "Salinity"]
+        text = ""
         for varname, vardesc in zip(varnames, vardescs):
 
-            nb['cells'].append(pu.text_cell(pu.header_text(vardesc, header=3)))
+            # nb['cells'].append(pu.text_cell(pu.header_text(vardesc, header=3)))
 
-            text = ""
+            # text = ""
             
             caption = ""  # f"{which_tidal.capitalize()} {vardesc.lower()} from moored ADCP for {model.upper()} and dataset {source_name}"
-            loc1 = mu.COMP_PAGE_DIR(slug) / f"{slug}_{mu.models[0]}" / f"{slug}_{source_name.replace('.','_')}_{varname}"
+            loc1 = mu.COMP_PAGE_DIR(slug) / f"{slug}_{models[0]}" / f"{slug}_{source_name.replace('.','_')}_{varname}"
             loc1 = loc1.with_suffix(".png")
-            loc2 = mu.COMP_PAGE_DIR(slug) / f"{slug}_{mu.models[1]}" / f"{slug}_{source_name.replace('.','_')}_{varname}"
-            loc2 = loc2.with_suffix(".png")
+            # loc2 = mu.COMP_PAGE_DIR(slug) / f"{slug}_{models[1]}" / f"{slug}_{source_name.replace('.','_')}_{varname}"
+            # loc2 = loc2.with_suffix(".png")
             label = ""  #f"fig-{source_name}-{model}-{varname}-{which_tidal}"
             width = "49"
             if loc1.is_file():
@@ -777,18 +835,18 @@ Note that the map shows all datasets from the catalog; it is not limited to the 
                 else:
                     text += utils.mk_md_fig(path, label, caption, width)
 
-            if loc2.is_file():
-                path = loc2.relative_to(mu.COMP_PAGE_DIR(slug))
-                if not not_in_jupyter_book:
-                    text += f"""
-```{{image}} {path}
-:width: {width}%
-```
-"""
-                else:
-                    text += utils.mk_md_fig(path, label, caption, width)
+#             if loc2.is_file():
+#                 path = loc2.relative_to(mu.COMP_PAGE_DIR(slug))
+#                 if not not_in_jupyter_book:
+#                     text += f"""
+# ```{{image}} {path}
+# :width: {width}%
+# ```
+# """
+#                 else:
+#                     text += utils.mk_md_fig(path, label, caption, width)
 
-            nb['cells'].append(pu.text_cell(text))
+        nb['cells'].append(pu.text_cell(text))
 
     file = f'{mu.COMP_PAGE_DIR(slug) / slug}.ipynb'
     nbf.write(nb, file)
@@ -805,19 +863,20 @@ if __name__ == "__main__":
     # overall removes some nice stuff that is only available in Jupyter book
     not_in_jupyter_book = False
     
-    # slug = "hfradar"
-    # hfradar(slug, not_in_jupyter_book)
+    slug = "hfradar"
+    hfradar(slug, not_in_jupyter_book)
 
     # overview_hfradar(not_in_jupyter_book)
 
     
     # slugs = [
-    #      "ctd_transects_barabara_to_bluff_2002_2003",
-    #     "ctd_transects_cmi_kbnerr", 
+    #     "ctd_transects_barabara_to_bluff_2002_2003",
+    #     "ctd_transects_cmi_kbnerr",
     #     "ctd_transects_cmi_uaf",
-    #     "ctd_transects_gwa", 
+    #     "ctd_transects_gwa",
+    #     "ctd_transects_misc_2002",
     #     "ctd_transects_otf_kbnerr",
-    #     "ctd_transects_uaf",  
+    #     "ctd_transects_uaf",
     #          ]
     # for slug in slugs:
     #     print(slug)
@@ -825,19 +884,26 @@ if __name__ == "__main__":
 
     # slugs = [
     #     "ctd_profiles_2005_noaa",
+    #     "ctd_profiles_ecofoci",  # after v1.0.1
+    #     "ctd_profiles_emap_2002",
+    #     "ctd_profiles_emap_2008",
     #     "ctd_profiles_kachemack_kuletz_2005_2007",
     #     "ctd_profiles_kb_small_mesh_2006",
+    #     "ctd_profiles_kbay_osu_2007",
+    #     "ctd_profiles_piatt_speckman_1999",
+    #     "ctd_profiles_usgs_boem",
     #          ]
     # for slug in slugs:
     #     print(slug)
     #     ctd_profiles(slug, not_in_jupyter_book)
 
-    slugs = [
-        # "adcp_moored_noaa_coi_2005",
-             "adcp_moored_noaa_coi_other",
-             ]
-    for slug in slugs:
-        adcp(slug, not_in_jupyter_book)
+    # slugs = ["adcp_moored_noaa_coi_2005",
+    #         "adcp_moored_noaa_coi_other",
+    #         'adcp_moored_noaa_kod_1',
+    #         'adcp_moored_noaa_kod_2',
+    #         ]
+    # for slug in slugs:
+    #     adcp(slug, not_in_jupyter_book)
 
 
     # slugs = [
@@ -848,6 +914,7 @@ if __name__ == "__main__":
     #     "moorings_kbnerr_historical", 
     #     "moorings_kbnerr_homer",
     #     "moorings_noaa",
+    #     "moorings_nps",
     #     "moorings_uaf",
     #     ]
     # for slug in slugs:

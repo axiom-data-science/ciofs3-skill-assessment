@@ -13,14 +13,11 @@ kernelspec:
 
 # Overview CTD Transects
 
-UPDATE
-Shown here are plots to summarize the skill of the models in representing the data. First are Taylor Diagrams summarize the overall skill of the models. Subsequently, in the next overview plots, each colored square marker represents the skill score for the model compared with the data for a visit to the transect. The length of each transect was split into the number of visits with a square for each visit; if there were many repeat visits there are a lot of squares along a transect and only one for a single visit.
+The performance of the CIOFSv3 model for CTD transect data is summarized on this page. Shown below are a map of dataset locations, Taylor diagrams summarizing performance across the three CIOFS historical models, and overview maps showing markers colored to indicate the skill score of the model-data comparisons for each dataset.
 
-Results show similar but slightly improved skill for CIOFS fresh over CIOFS Hindcast for temperature and clearly improved skill for salinity.
-
-[226MB zipfile of plots and stats files](https://files.axds.co/ciofs_fresh/zip/ctd_transects.zip)
-
-[164MB zipfile of CTD profile plots from CTD transects](https://files.axds.co/ciofs_fresh_staging/zip/ctd_transects.zip)
+* [165MB zipfile of plots and stats files](https://files.axds.co/ciofs3/zip/ctd_transects.zip)
+* [289MB zipfile of CTD profile plots from CTD transects](https://files.axds.co/ciofs3/zip/ctd_profiles_from_transects.zip)
+* [180MB CTD transect model-data comparison as PDF](https://files.axds.co/ciofs3/pdfs/ctd_transects.pdf)
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -49,8 +46,9 @@ hv.extension('bokeh')
 ins_type = "ctd_transects"  # instrument name
 models = ["ciofs3"]
 
-years = [1999, 2000, 2001, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 
-         2017, 2018, 2019, 2020]
+years = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
+         2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+
 
 # can only do these when running in docker with playwright available
 # once they exist, can run outside of docker because don't need to
@@ -194,14 +192,7 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} fig_map
-:name: "fig-overview-ctd-transects-map"
 
-All CTD transects (repeats indicated but not plotted), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-
-```
-````
 
 +++
 
@@ -209,7 +200,7 @@ All CTD transects (repeats indicated but not plotted), by project. Click on a le
 ```{figure} build_figures/ctd_transects_map.png
 :name: "fig-overview-ctd-transects-map"
 
-All CTD transects, by project. (PNG screenshot, available for PDF and for saving image.)
+All CTD transects, by project.
 ```
 ````
 
@@ -217,14 +208,16 @@ All CTD transects, by project. (PNG screenshot, available for PDF and for saving
 
 ## Taylor Diagrams
 
-Taylor diagrams summarize the skill of the two models in capturing the CTD transect datasets. The data has been grouped by region ({numref}`Fig. {number}<fig-ctd_transects_by_region>`) and season ({numref}`Fig. {number}<fig-ctd_transects_by_season>`). The results show that CIOFS fresh performs slightly better than CIOFS hindcast for temperature across different groupings, and much better for salinity. Skill scores are shown in the next plots for each dataset.
+The present Taylor diagrams summarize the skill of the three historical CIOFS models in capturing the CTD transect datasets. Only datasets from years for which all three CIOFS historical models are available are used, which are 2003-2006 and 2012-2014 (the years modeled for CIOFS fresh).
+
+The data has been grouped by region ({numref}`Fig. {number}<fig-ctd_transects_by_region>`) and season ({numref}`Fig. {number}<fig-ctd_transects_by_season>`). For temperature, the models behave similarly to each other and perform well across regions (correlation coefficient $r$ ranges from 0.8 to 0.99 and have accurate variance). There is more separation in performance by season with CIOFS Fresh and CIOFSv3 outperforming CIOFS Hindcast. Fall shows the least accuracy ($r\sim0.7$ for CIOFSv3) and summer shows the best ($r\sim0.95$). As expected for salinity, CIOFS Hindcast performs poorly; CIOFSv3 performs better than CIOFS Fresh across regions except has too much variance in Kachemak Bay (and the two are similar in lower Cook Inlet). Correlation coefficients for CIOFSv3 range from ~0.5 in Kachemak Bay to ~0.95 in central Cook Inlet, and variance alternates between too low (outside and lower Cook Inlet) and too high (central and upper Cook Inlet and Kachemak Bay). By season, CIOFS Fresh and CIOFSv3 perform similarly and does pretty well ($r\sim0.8$ to $r\sim0.95$ with too high variance in all seasons except winter).
 
 
 ```{figure} ../figures/taylor_diagrams/ctd_transects_by_region.png
 ---
 name: fig-ctd_transects_by_region
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for temperature (left) and salinity (right), grouped by region of Cook Inlet, for CTD transects datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for temperature (left) and salinity (right), grouped by region of Cook Inlet, for CTD transects datasets.
 ```
 
 
@@ -232,7 +225,7 @@ Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (tria
 ---
 name: fig-ctd_transects_by_season
 ---
-Taylor Diagram summarizing skill of CIOFS Hindcast (stars) and CIOFS Fresh (triangles) for temperature (left) and salinity (right), grouped by season, for CTD transects datasets.
+Taylor Diagram summarizing skill of CIOFS Hindcast (stars), CIOFS Fresh (triangles), and CIOFSv3 (circles) for temperature (left) and salinity (right), grouped by season, for CTD transects datasets.
 ```
 
 ```{code-cell} ipython3
@@ -472,7 +465,11 @@ def make_figures(model, key_variables, vardescs):
     return variable_plot, figname, abs_path
 ```
 
-## Results
+## Skill Scores
+
+Each colored square marker represents the skill score for the model compared with the data for a visit to the transect. The length of each transect was split into the number of visits with a square for each visit; if there were many repeat visits there are a lot of squares along a transect and only one for a single visit.
+
+Results show good skill for both temperature and salinity, though occasional transects have low skill.
 
 ```{code-cell} ipython3
 :tags: [remove-input]
@@ -481,18 +478,12 @@ ctd_transects, figname, abs_path = make_figures(models[0], key_variables, vardes
 glue("ctd_transects", ctd_transects, display=False)
 ```
 
-````{div} full-width   
-```{glue:figure} ctd_transects
-:name: "fig-overview-ctd-transects"
 
-Skill scores for CIOFSv3 with CTD transects for sea temperature (left) and salinity (right), by project. Click on a legend entry to toggle the transparency. (HTML plot, won't show up correctly in PDF.)
-```
-````
 
 +++
 
 ```{figure} build_figures/ctd_transects.png
 :name: "fig-overview-ctd-transects"
 
-Skill scores for CIOFSv3 with CTD transects for sea temperature (left) and salinity (right), by project. (PNG screenshot, available for PDF and for saving image.)
+Skill scores for CIOFSv3 with CTD transects for sea temperature (left) and salinity (right), by project.
 ```

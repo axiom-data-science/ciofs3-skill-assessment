@@ -14,7 +14,33 @@ import oceans.filters
 import cmocean.cm as cmo
 import cook_inlet_catalogs as cic
 
+time_range = ["2016-1-1","2017-1-1"]
+# time_range = ["2001-1-1","2002-1-1"]
+# time_range = ["2002-1-1","2005-1-1"]  # years = [2002, 2003, 2004]
+# time_range = ["1999-1-1","2005-1-1"]  # still run this
+# time_range = ["2006-1-1","2013-1-1"]
+# time_range = ["2011-1-1","2013-1-1"]  # years = [2011, 2012]
+# time_range = ["2014-1-1","2024-1-1"]
+# time_range = ["2021-1-1","2024-1-1"]  # years = [2021, 2022, 2023]
+# time_range = ["2005-1-1","2006-1-1"]  # years = [2005, 2013, 2024] then do other 2 years
+# time_range = ["2013-1-1","2014-1-1"]  # years = [2005, 2013, 2024] then do other 2 years
+# time_range = ["2024-1-1","2025-1-1"]  # years = [2005, 2013, 2024] then do other 2 years
+# time_range = ["1999-1-1","2025-1-1"]  # for ciofs3 full range
 
+# if time_range == ["2002-1-1","2005-1-1"]:
+#     model_slug = "v4a"
+# elif time_range == ["2011-1-1","2013-1-1"]:
+#     model_slug = "v4b"
+# elif time_range == ["2021-1-1","2024-1-1"]:
+#     model_slug = "v4c"    
+# elif time_range == ["2005-1-1","2006-1-1"]:
+#     model_slug = "v4j"
+# elif time_range == ["2013-1-1","2014-1-1"]:
+#     model_slug = "v4j"
+# elif time_range == ["2024-1-1","2025-1-1"]:
+#     model_slug = "v4j"
+
+# cat_model = intake.open_catalog(f"models_{model_slug}.yaml")
 cat_model = intake.open_catalog("models.yaml")
 
 
@@ -22,22 +48,23 @@ slugs = [
         # "moorings_aoos_cdip",
         # "moorings_circac", 
         # "moorings_kbnerr", 
-        # "moorings_kbnerr_bear_cove_seldovia", 
-        # "moorings_kbnerr_historical",  # skipping for "1999-1-1","2002-1-1"
-        # "moorings_kbnerr_homer",
-        "moorings_noaa",    
-        "moorings_nps",
-        "moorings_uaf",  
+        "moorings_kbnerr_bear_cove_seldovia",  # hit an error here - rerun
+        # "moorings_kbnerr_historical",
+        # "moorings_kbnerr_homer",  # hit same error
+        # "moorings_noaa",    
+        # "moorings_nps",
+        # "moorings_uaf",  
          ]
 
+override_plot = True
 
 # note that I ended up copying cached files for "ciofs_hindcast" from
 # previous project instead of running this script
 
 
-# models = ["ciofs3"]
+models = ["ciofs3"]
 # models = ["ciofs_hindcast", "ciofs_fresh"]
-models = ["ciofs_hindcast"]
+# models = ["ciofs_hindcast"]
 
 
 # for depth index need these to have model depths to choose index
@@ -73,8 +100,9 @@ wetdry = True
 # # elif model == "nwgoa":
 # #     wetdry = False
 
-key_variables = ["ssh"]
+# key_variables = ["ssh"]
 # key_variables = ["salt","ssh"]
+key_variables = ["salt"]
 # key_variables = ["temp","salt","ssh"]
 # key_variables = ["temp"]
 # key_variables = ["temp","salt"]
@@ -126,20 +154,23 @@ for slug in slugs:
     cat = intake.open_catalog(cic.utils.cat_path(slug))
     cat.metadata["name"] = slug
 
-    source_names = list(cat)
-    # source_names = ["noaa_nos_co_ops_9455595"]
+    # source_names = list(cat)
+    source_names = ["nerrs_kacsdwq"]
     for source_name in source_names:
 
         for model in models:
 
-            if model == "ciofs_hindcast":
-                time_range = ["1999-1-1","2023-1-1"] 
-            elif model == "ciofs3":
-                # time_range = ["1999-1-1","2002-1-1"]
-                # time_range = ["2006-1-1","2011-1-1"]
-                time_range = ["2014-1-1","2021-1-1"]
-            else:
-                raise ValueError(f"Unknown model: {model}")
+            # if model == "ciofs_hindcast":
+            #     time_range = ["1999-1-1","2023-1-1"] 
+            # elif model == "ciofs3":
+            #     # time_range = ["2002-1-1","2005-1-1"]
+            #     # time_range = ["1999-1-1","2005-1-1"]  # still run this
+            #     # time_range = ["2006-1-1","2013-1-1"]
+            #     # time_range = ["2011-1-1","2013-1-1"]
+            #     # time_range = ["2014-1-1","2024-1-1"]
+            #     time_range = ["2021-1-1","2024-1-1"]
+            # else:
+            #     raise ValueError(f"Unknown model: {model}")
 
             kwargs_plot = {"model_label": model.upper()}
 
@@ -264,7 +295,7 @@ for slug in slugs:
                               known_model_depth_attr_positive="up",
                          override_processed=False,
                          override_stats=False,
-                         override_plot=False,
+                         override_plot=override_plot,
                              )
 
                 start_time = cat[source_name].metadata["minTime"].replace("Z","")
