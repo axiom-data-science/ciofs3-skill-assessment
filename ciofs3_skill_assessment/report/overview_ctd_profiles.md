@@ -166,7 +166,11 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
+```{glue:figure} fig_map
+:name: "fig-overview-ctd-profiles-map"
 
+All CTD profiles, by project. Click on a legend entry to toggle the transparency.
+```
 
 +++
 
@@ -345,7 +349,13 @@ ctd, figname, abs_path = make_figures(models[0], key_variables, vardescs)
 glue("ctd", ctd, display=False)
 ```
 
+````{div} full-width                
+```{glue:figure} ctd
+:name: "fig-overview-ctd-profiles"
 
+Skill scores for CIOFSv3 with CTD profiles for sea temperature (left) and salinity (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 

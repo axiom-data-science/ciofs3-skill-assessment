@@ -61,7 +61,7 @@ run_pdf = True
 
 def save_png(abs_path, figname):
     if not run_pdf:
-        print("Skipping PNG creation because run_pdf is False")
+        # print("Skipping PNG creation because run_pdf is False")
         return
     # Define the command and its arguments
     cmd = [
@@ -144,7 +144,13 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} fig_map
+:name: "fig-overview-adcp-map"
 
+All ADCP deployments, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -381,7 +387,13 @@ tidal_speed, figname, abs_path = make_figures(models[0], key_variable, which)
 glue("tidal_speed", tidal_speed, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} tidal_speed
+:name: "fig-overview-adcp-tidal-speed"
 
+Skill scores for CIOFSv3 with ADCP moorings for horizontal speed, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -404,7 +416,13 @@ both_tidal, figname, abs_path = make_figures(models[0], key_variables, which)
 glue("both_tidal", both_tidal, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} both_tidal
+:name: "fig-overview-adcp-tidal"
 
+Skill scores for CIOFSv3 with ADCP moorings for along-channel (left) and across-channel velocity (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -431,7 +449,13 @@ subtidal_speed, figname, abs_path = make_figures(models[0], key_variable, which)
 glue("subtidal_speed", subtidal_speed, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} subtidal_speed
+:name: "fig-overview-adcp-subtidal-speed"
 
+Skill scores for CIOFSv3 with ADCP moorings for subtidal horizontal speed, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -454,7 +478,13 @@ both_subtidal, figname, abs_path = make_figures(models[0], key_variables, which)
 glue("both_subtidal", both_subtidal, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} both_subtidal
+:name: "fig-overview-adcp-subtidal"
 
+Skill scores for CIOFSv3 with ADCP moorings for subtidal along-channel (left) and across-channel velocity (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 

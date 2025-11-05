@@ -61,7 +61,7 @@ run_pdf = True
 
 def save_png(abs_path, figname):
     if not run_pdf:
-        print("Skipping PNG creation because run_pdf is False")
+        # print("Skipping PNG creation because run_pdf is False")
         return
     # Define the command and its arguments
     cmd = [
@@ -192,7 +192,14 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} fig_map
+:name: "fig-overview-ctd-transects-map"
 
+All CTD transects (repeats indicated but not plotted), by project. Click on a legend entry to toggle the transparency.
+
+```
+````
 
 +++
 
@@ -478,7 +485,13 @@ ctd_transects, figname, abs_path = make_figures(models[0], key_variables, vardes
 glue("ctd_transects", ctd_transects, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} ctd_transects
+:name: "fig-overview-ctd-transects"
 
+Skill scores for CIOFSv3 with CTD transects for sea temperature (left) and salinity (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 

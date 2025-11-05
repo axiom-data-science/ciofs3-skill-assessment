@@ -62,7 +62,7 @@ run_pdf = True
 
 def save_png(abs_path, figname):
     if not run_pdf:
-        print("Skipping PNG creation because run_pdf is False")
+    #     print("Skipping PNG creation because run_pdf is False")
         return
     # Define the command and its arguments
     cmd = [
@@ -174,7 +174,11 @@ if not Path(f"{figname}.png").exists():
 glue("fig_map", fmap, display=False)
 ```
 
+```{glue:figure} fig_map
+:name: "fig-overview-moorings-map"
 
+All mooring stations, by project. Click on a legend entry to toggle the transparency.
+```
 
 +++
 
@@ -478,7 +482,13 @@ ssh_plot, figname, abs_path = make_figures(models[0], key_variables, whiches, cl
 glue("ssh_plot", ssh_plot, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} ssh_plot
+:name: "fig-overview-moorings-ssh"
 
+Skill scores for CIOFSv3 with moorings for tidal (left) and subtidal (right) sea surface height with mean subtracted for moorings, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -507,7 +517,13 @@ tidal_temp, figname, abs_path = make_figures(models[0], key_variables, whiches, 
 glue("tidal_temp", tidal_temp, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} tidal_temp
+:name: "fig-overview-moorings-tidal-temp"
 
+Skill scores for CIOFSv3 with moorings for tidal sea temperature, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -534,7 +550,13 @@ temp_plot_subtidal, figname, abs_path = make_figures(models[0], key_variables, w
 glue("temp_plot_subtidal", temp_plot_subtidal, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} temp_plot_subtidal
+:name: "fig-overview-moorings-subtidal-temp"
 
+Skill scores for CIOFSv3 with moorings for subtidal temperature (left) and subtidal temperature anomaly (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -563,7 +585,13 @@ tidal_salt, figname, abs_path = make_figures(models[0], key_variables, whiches, 
 glue("tidal_salt", tidal_salt, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} tidal_salt
+:name: "fig-overview-moorings-tidal-salt"
 
+Skill scores for CIOFSv3 with moorings for tidal salinity, by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
@@ -590,7 +618,13 @@ salt_plot_subtidal, figname, abs_path = make_figures(models[0], key_variables, w
 glue("salt_plot_subtidal", salt_plot_subtidal, display=False)
 ```
 
+````{div} full-width   
+```{glue:figure} salt_plot_subtidal
+:name: "fig-overview-moorings-subtidal-salt"
 
+Skill scores for CIOFSv3 with moorings for subtidal salinity (left) and subtidal salinity anomaly (right), by project. Click on a legend entry to toggle the transparency.
+```
+````
 
 +++
 
